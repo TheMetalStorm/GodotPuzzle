@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://dmviq3ngdlodo"]
+
+[ext_resource type="Script" path="res://Scenes/Piece.cs" id="1_uplu0"]
+[ext_resource type="Texture2D" uid="uid://bxixh2uc3paoc" path="res://Graphics/tileStageForest.png" id="2_pwcpy"]
+
+[node name="Piece" type="Node2D"]
+script = ExtResource("1_uplu0")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("2_pwcpy")
+hframes = 6
+vframes = 9
+frame = 51
