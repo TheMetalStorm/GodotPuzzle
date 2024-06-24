@@ -10,11 +10,19 @@ public partial class Piece : Node2D
 {
 	private static readonly Random Rnd = new Random();
 	public PieceType Type;
-	
+	public static int size = 16;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		//assume square pieces
+		SetColor();
+	}
+
+	public void SetColor()
+	{
 		Sprite2D mySprite = GetChild<Sprite2D>(0);
+
+        
 		switch (Type)
 		{
 			case PieceType.BLUE:
