@@ -3,7 +3,8 @@
 [ext_resource type="PackedScene" uid="uid://srrq0fsqo4nh" path="res://Scenes/Board.tscn" id="1_1cg7v"]
 
 [node name="Camera2D" type="Camera2D"]
-zoom = Vector2(4, 4)
+scale = Vector2(4, 4)
 
 [node name="TileMap" parent="." instance=ExtResource("1_1cg7v")]
 texture_filter = 1
+_boardSize = 5
