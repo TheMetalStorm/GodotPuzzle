@@ -75,7 +75,7 @@ public partial class Piece : Node2D
 
 	private void CleanupAfterColOrRowShift()
 	{
-		if (updateColor && !_animationPlayer.IsPlaying())		
+		if (updateColor && !_animationPlayer.IsPlaying() && _animationPlayer.CurrentAnimation != "idle")		
 		{
 			SetColor();
 			_animationPlayer.Stop();
