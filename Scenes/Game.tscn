@@ -7,4 +7,3 @@ scale = Vector2(4, 4)
 
 [node name="TileMap" parent="." instance=ExtResource("1_1cg7v")]
 texture_filter = 1
-_boardSize = 5

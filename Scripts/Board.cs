@@ -1,43 +1,47 @@
 using Godot;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Godot.Collections;
-using GodotTest.Scripts;
+
+namespace GodotTest.Scripts;
 
 public partial class Board : TileMap
 {
 	private const int LayerBoard = 0;
 	private const int LayerPieces = 1;
 	private Piece[,] _boardPieces;
-	
+	private Piece _fake;
+	private PackedScene pieceScene;
 	[Export]
-	private int _boardSize = 6;
-
-	private Piece fake;
-	
+	private int _boardSize = 3;
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		var pieceScene = GD.Load<PackedScene>("res://Scenes/Piece.tscn");
-		fake = pieceScene.Instantiate<Piece>();
-		fake.GetChild<Sprite2D>(0).VisibilityLayer = 1;		
-		fake.fakePiece = true;
-		AddChild(fake);
-		fake._sprite.Visible = false;
+		pieceScene = GD.Load<PackedScene>("res://Scenes/Piece.tscn");
+		CreateFakePiece();
 
-		
-		Position -= new Vector2((_boardSize+1) * 8, (_boardSize+1) * 8);
-		TileMap map = GetNode<TileMap>(".");
+
 		_boardPieces = new Piece[_boardSize, _boardSize];
-        DrawBoardBg(map);
-        PopulatePieces();
+		CenterBoard();
+		DrawBoardBg();
+		PopulatePieces();
+	}
+
+	private void CenterBoard()
+	{
+		Position -= new Vector2((_boardSize+1) * 8, (_boardSize+1) * 8);
+	}
+
+	private void CreateFakePiece()
+	{
+		_fake = pieceScene.Instantiate<Piece>();
+		_fake.GetChild<Sprite2D>(0).VisibilityLayer = 1;		
+		_fake.fakePiece = true;
+		AddChild(_fake);
+		_fake._sprite.Visible = false;
 	}
 
 	private void PopulatePieces()
 	{
-		var pieceScene = GD.Load<PackedScene>("res://Scenes/Piece.tscn");
 		for (int y = 0; y < _boardSize; y++)
 		{
 			for (int x = 0; x < _boardSize ; x++)
@@ -54,9 +58,9 @@ public partial class Board : TileMap
 	}
 	
 
-	private void DrawBoardBg(TileMap map)
+	private void DrawBoardBg()
 	{
-		
+		TileMap map = GetNode<TileMap>(".");
 		//TODO: Rand des Boards muss Layer höher sein als Pieces, inneres des Boards niedriger
 		//----  - und | = 2
 		//|PB|	P = 1
@@ -79,17 +83,24 @@ public partial class Board : TileMap
 	
 	private void MoveRowLeft(int row)
 	{
-		//TODO: implement
-		// for (int x = 0; x < _boardSize-1; x++)
-		// {
-		// 	(_boardPieces[x, line].Type, _boardPieces[x+1, line].Type) = (_boardPieces[x+1, line].Type, _boardPieces[x, line].Type);
-		//
-		// 	//_boardPieces[x, line].AnimateLeft();
-		// 	
-		// 	_boardPieces[x, line].SetColor();
-		// 	_boardPieces[x+1, line].SetColor();
-		// 	
-		// }
+		PieceType first = _boardPieces[0, row].Type;
+		for (int x = 0; x < _boardSize-1; x++)
+		{
+			if (x == 0)
+			{
+				_fake._sprite.Visible = true;
+				_fake.Type = _boardPieces[x, row].Type;
+				_fake.SetColor();
+				_fake.Position = new Vector2((_boardSize+1)*Piece.Size, Piece.Size * (row+1));
+				_fake.AnimateLeft();
+			} 
+			_boardPieces[x, row].Type = _boardPieces[x+1, row].Type;
+			_boardPieces[x, row].AnimateLeft();
+
+
+		}
+		_boardPieces[_boardSize-1, row].Type = first;
+		_boardPieces[_boardSize-1, row].AnimateLeft();
 	}
 	private void MoveColumnDown(int column)
 	{
@@ -103,18 +114,17 @@ public partial class Board : TileMap
 	
 	private void MoveRowRight(int row)
 	{
-
 		PieceType last = _boardPieces[_boardSize - 1, row].Type;
 		for (int x = _boardSize - 1; x > 0; x--)
 		{
 
 			if (x == _boardSize - 1)
 			{
-				fake._sprite.Visible = true;
-				fake.Type = _boardPieces[x, row].Type;
-				fake.SetColor();
-				fake.Position = new Vector2(0, Piece.Size * (row+1));
-				fake.AnimateRight();
+				_fake._sprite.Visible = true;
+				_fake.Type = _boardPieces[x, row].Type;
+				_fake.SetColor();
+				_fake.Position = new Vector2(0, Piece.Size * (row+1));
+				_fake.AnimateRight();
 			} 
 			_boardPieces[x, row].Type = _boardPieces[x-1, row].Type;
 			_boardPieces[x, row].AnimateRight();
@@ -122,10 +132,9 @@ public partial class Board : TileMap
 
 		}
 		_boardPieces[0, row].Type = last;
-		_boardPieces[0, row].AnimateRight();//AnimateRight();
-
+		_boardPieces[0, row].AnimateRight();
 	}
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
+	
 	public override void _Process(double delta)
 	{
 		//TODO: replace with real movement
