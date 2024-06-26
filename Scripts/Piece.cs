@@ -70,11 +70,13 @@ public partial class Piece : Node2D
 	
 	public override void _Process(double delta)
 	{
-		if (updateColor && 
-		    _animationPlayer.CurrentAnimation != "idle" &&
-		    !_animationPlayer.IsPlaying())		
+		CleanupAfterColOrRowShift();
+	}
+
+	private void CleanupAfterColOrRowShift()
+	{
+		if (updateColor && !_animationPlayer.IsPlaying())		
 		{
-			
 			SetColor();
 			_animationPlayer.Stop();
 			updateColor = false;
@@ -82,8 +84,6 @@ public partial class Piece : Node2D
 			{
 				_sprite.Visible = false;
 			}
-
 		}
 	}
-
 }

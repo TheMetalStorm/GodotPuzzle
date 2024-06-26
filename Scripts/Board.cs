@@ -128,6 +128,7 @@ public partial class Board : TileMap
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		//TODO: replace with real movement
 		TempMovePieces();
 	}
 
