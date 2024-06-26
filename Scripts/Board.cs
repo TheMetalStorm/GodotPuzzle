@@ -136,44 +136,43 @@ public partial class Board : TileMap
 	{
 		if (Input.IsActionJustPressed("ui_left"))
 		{
-			if (canMakeMove())
+			if (CanMakeMove())
 			{ 
 				MoveRowLeft(0);
 			}
 		}
 		else if (Input.IsActionJustPressed("ui_right"))
 		{
-			if (canMakeMove())
+			if (CanMakeMove())
 			{
 				MoveRowRight(0);
 			}
 		}
 		else if (Input.IsActionJustPressed("ui_down"))
 		{
-			if (canMakeMove())
+			if (CanMakeMove())
 			{
 				MoveColumnDown(0);
 			}
 		}
 		else if (Input.IsActionJustPressed("ui_up"))
 		{
-			if (canMakeMove())
+			if (CanMakeMove())
 			{
 				MoveColumnUp(0);
 			}
 		}
 	}
 
-	private bool canMakeMove()
+	private bool CanMakeMove()
 	{
 		foreach (Piece piece in _boardPieces)
 		{
-			if (piece._animationPlayer.IsPlaying())
+			if (piece._animationPlayer.CurrentAnimation != "idle")
 			{
 				return false;
 			}
 		}
-	
 		return true;
 	}
 }

@@ -21,6 +21,7 @@ public partial class Piece : Node2D
 	{
 		_animationPlayer = GetChild<AnimationPlayer>(1);
 		_sprite = GetChild<Sprite2D>(0);
+		_animationPlayer.CurrentAnimation = "idle";
 		SetColor();
 	}
 
@@ -64,8 +65,7 @@ public partial class Piece : Node2D
 	public void AnimateRight()
 	{
 		_animationPlayer.Play("right", customSpeed: 2);
-		updateColor = true;			 
-		
+		updateColor = true;	
 	}
 	
 	public override void _Process(double delta)
@@ -79,6 +79,7 @@ public partial class Piece : Node2D
 		{
 			SetColor();
 			_animationPlayer.Stop();
+			_animationPlayer.Play("idle");
 			updateColor = false;
 			if (fakePiece)
 			{
