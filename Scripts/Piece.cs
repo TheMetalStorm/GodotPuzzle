@@ -59,7 +59,6 @@ public partial class Piece : Node2D
 	{
 		 _animationPlayer.Play("left", customSpeed: 2);
 		 updateColor = true;			 
-		
 	}
 	
 	public void AnimateRight()
@@ -74,6 +73,11 @@ public partial class Piece : Node2D
 		updateColor = true;	
 	}
 
+	public void AnimateUp()
+	{
+		_animationPlayer.Play("up", customSpeed: 2);
+		updateColor = true;	
+	}
 	
 	public override void _Process(double delta)
 	{

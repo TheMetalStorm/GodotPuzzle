@@ -146,14 +146,33 @@ public partial class Board : TileMap
 		
 		}
 		_boardPieces[column, 0].Type = lowest;
-		 _boardPieces[column, 0].AnimateDown();
+		_boardPieces[column, 0].AnimateDown();
 	}
-	
+
 	private void ShiftColumnUp(int column)
 	{
-		//TODO: implement
+		PieceType highest = _boardPieces[column, 0].Type;
+		for (int y = 0; y < _boardSize - 1; y++)
+		{
+			if (y == 0)
+			{
+				_fake._sprite.Visible = true;
+				_fake.Type = _boardPieces[column, y].Type;
+				_fake.SetColor();
+				_fake.Position = new Vector2((column+1)*Piece.Size, (_boardSize+1) * Piece.Size);
+				_fake.AnimateUp();
+			}
+
+			_boardPieces[column, y].Type = _boardPieces[column, y + 1].Type;
+			_boardPieces[column, y].AnimateUp();
+
+
+		}
+
+		_boardPieces[column, _boardSize - 1].Type = highest;
+		_boardPieces[column, _boardSize - 1].AnimateUp();
 	}
-	
+
 	public override void _Process(double delta)
 	{
 		//TODO: replace with real movement
