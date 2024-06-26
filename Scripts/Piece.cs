@@ -15,35 +15,33 @@ public partial class Piece : Node2D
 	private static readonly Random Rnd = new Random();
 	public PieceType Type;
 	public const int Size = 16;
-	private AnimationPlayer _animationPlayer;
+	public AnimationPlayer _animationPlayer;
+	public Sprite2D _sprite;
 	public override void _Ready()
 	{
 		_animationPlayer = GetChild<AnimationPlayer>(1);
-
+		_sprite = GetChild<Sprite2D>(0);
 		SetColor();
 	}
 
 	public void SetColor()
 	{
-		Sprite2D mySprite = GetChild<Sprite2D>(0);
-
-        
 		switch (Type)
 		{
 			case PieceType.BLUE:
-				mySprite.Frame = 49;
+				_sprite.Frame = 49;
 				break;
 			case PieceType.RED:
-				mySprite.Frame = 50;
+				_sprite.Frame = 50;
 				break;
 			case PieceType.YELLOW:
-				mySprite.Frame = 51;
+				_sprite.Frame = 51;
 				break;
 			case PieceType.GREEN:
-				mySprite.Frame = 52;
+				_sprite.Frame = 52;
 				break;
 			case PieceType.QUESTION:
-				mySprite.Frame = 53;
+				_sprite.Frame = 53;
 				break;
 		}
 	}
@@ -58,14 +56,14 @@ public partial class Piece : Node2D
 
 	public void AnimateLeft()
 	{
-		 _animationPlayer.Play("left", customSpeed: 4);
+		 _animationPlayer.Play("left", customSpeed: 2);
 		 updateColor = true;			 
 		
 	}
 	
 	public void AnimateRight()
 	{
-		_animationPlayer.Play("right", customSpeed: 4);
+		_animationPlayer.Play("right", customSpeed: 2);
 		updateColor = true;			 
 		
 	}
@@ -74,16 +72,14 @@ public partial class Piece : Node2D
 	{
 		if (updateColor && _animationPlayer.CurrentAnimation != "idle" && !_animationPlayer.IsPlaying())
 		{
+			
+			SetColor();
+			_animationPlayer.Stop();
+			updateColor = false;
 			if (fakePiece)
 			{
-				QueueFree();
-				updateColor = false;
+				_sprite.Visible = false;
 			}
-			_animationPlayer.Stop();
-			_animationPlayer.Play("idle");
-			SetColor();
-			updateColor = false;
-			
 
 		}
 	}

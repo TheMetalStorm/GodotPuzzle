@@ -14,11 +14,19 @@ public partial class Board : TileMap
 	[Export]
 	private int _boardSize = 6;
 
+	private Piece fake;
 	
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		var pieceScene = GD.Load<PackedScene>("res://Scenes/Piece.tscn");
+		fake = pieceScene.Instantiate<Piece>();
+		fake.GetChild<Sprite2D>(0).VisibilityLayer = 1;		
+		fake.fakePiece = true;
+		AddChild(fake);
+		fake._sprite.Visible = false;
+
 		
 		Position -= new Vector2((_boardSize+1) * 8, (_boardSize+1) * 8);
 		TileMap map = GetNode<TileMap>(".");
@@ -62,7 +70,7 @@ public partial class Board : TileMap
 		
 	}
 	
-	private void MoveLineLeft(int line, double delta)
+	private void MoveLineLeft(int line)
 	{
 
 		// for (int x = 0; x < _boardSize-1; x++)
@@ -77,49 +85,63 @@ public partial class Board : TileMap
 		// }
 	}
 	
-	private void MoveLineRight(int line, double delta)
+	private void MoveLineRight(int line)
 	{
 
 		PieceType last = _boardPieces[_boardSize - 1, line].Type;
-		for (int x = _boardSize - 1; x >= 1; x--)
+		for (int x = _boardSize - 1; x > 0; x--)
 		{
 
 			if (x == _boardSize - 1)
 			{
-				var pieceScene = GD.Load<PackedScene>("res://Scenes/Piece.tscn");
-				var fake = pieceScene.Instantiate<Piece>();
-
-				fake.GetChild<Sprite2D>(0).VisibilityLayer = 1;
+				fake._sprite.Visible = true;
 				fake.Type = _boardPieces[x, line].Type;
 				fake.SetColor();
-				fake.fakePiece = true;
-				fake.Position = new Vector2(0,16 );
-				AddChild(fake);
-
+				fake.Position = new Vector2(0, Piece.Size * (line+1));
 				fake.AnimateRight();
 			} 
 			_boardPieces[x, line].Type = _boardPieces[x-1, line].Type;
-
 			_boardPieces[x, line].AnimateRight();
 
 
 		}
 		_boardPieces[0, line].Type = last;
-
 		_boardPieces[0, line].AnimateRight();//AnimateRight();
 
 	}
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+	
 		if (Input.IsActionJustPressed("ui_left"))
 		{
-			MoveLineLeft(0, delta);
+			if (canMakeMove())
+			{
+				//MoveLineRight(1);
+				MoveLineLeft(0);
+			}
+			
 		}
-		
-		if (Input.IsActionJustPressed("ui_right"))
+		else if (Input.IsActionJustPressed("ui_right"))
 		{
-			MoveLineRight(0,delta);
+			if (canMakeMove())
+			{
+				MoveLineRight(0);
+			}
 		}
+	
+	}
+
+	private bool canMakeMove()
+	{
+		foreach (Piece piece in _boardPieces)
+		{
+			if (piece._animationPlayer.IsPlaying())
+			{
+				return false;
+			}
+		}
+	
+		return true;
 	}
 }
