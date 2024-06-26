@@ -5,8 +5,11 @@ namespace GodotTest.Scripts;
 
 public partial class Board : TileMap
 {
-	private const int LayerBoard = 0;
-	private const int LayerPieces = 1;
+	private const int LayerIndexBorder = 0;
+	
+	private const int ZIndexPlayer = 0;
+	private const int ZIndexBorder = 1;
+
 	private Piece[,] _boardPieces;
 	private Piece _fake;
 	private PackedScene pieceScene;
@@ -18,8 +21,6 @@ public partial class Board : TileMap
 	{
 		pieceScene = GD.Load<PackedScene>("res://Scenes/Piece.tscn");
 		CreateFakePiece();
-
-
 		_boardPieces = new Piece[_boardSize, _boardSize];
 		CenterBoard();
 		DrawBoardBg();
@@ -34,7 +35,7 @@ public partial class Board : TileMap
 	private void CreateFakePiece()
 	{
 		_fake = pieceScene.Instantiate<Piece>();
-		_fake.GetChild<Sprite2D>(0).VisibilityLayer = 1;		
+		_fake.GetChild<Sprite2D>(0).ZIndex = ZIndexPlayer;
 		_fake.fakePiece = true;
 		AddChild(_fake);
 		_fake._sprite.Visible = false;
@@ -49,7 +50,7 @@ public partial class Board : TileMap
 				var piece = pieceScene.Instantiate<Piece>();
 	
 				piece.Position =  new Vector2((x+1)*Piece.Size, (y+1)*Piece.Size);
-				piece.GetChild<Sprite2D>(0).VisibilityLayer = LayerPieces;
+				_fake.GetChild<Sprite2D>(0).ZIndex = ZIndexPlayer;
 				piece.SetRandomPiece();
 				_boardPieces[x, y] = piece;
 				AddChild(piece);
@@ -61,12 +62,7 @@ public partial class Board : TileMap
 	private void DrawBoardBg()
 	{
 		TileMap map = GetNode<TileMap>(".");
-		//TODO: Rand des Boards muss Layer höher sein als Pieces, inneres des Boards niedriger
-		//----  - und | = 2
-		//|PB|	P = 1
-		//|BB|	B = 0
-		//----	
-		
+		map.ZIndex = ZIndexBorder; 
 		Array<Vector2I> boardBg = new Array<Vector2I>();
 		
 		for (int y = 0; y <= _boardSize; y++)
@@ -74,10 +70,11 @@ public partial class Board : TileMap
 			for (int x = 0; x <= _boardSize; x++)
 			{
 				boardBg.Add(new Vector2I(x, y));		
+				map.EraseCell(LayerIndexBorder,new Vector2I(x, y));
 			}
 		}
 		
-		map.SetCellsTerrainConnect(LayerBoard, boardBg,0, 0);
+		map.SetCellsTerrainConnect(LayerIndexBorder, boardBg,0, 0);
 		
 	}
 	
