@@ -56,6 +56,13 @@ public partial class Board : TileMap
 
 	private void DrawBoardBg(TileMap map)
 	{
+		
+		//TODO: Rand des Boards muss Layer höher sein als Pieces, inneres des Boards niedriger
+		//----  - und | = 2
+		//|PB|	P = 1
+		//|BB|	B = 0
+		//----	
+		
 		Array<Vector2I> boardBg = new Array<Vector2I>();
 		
 		for (int y = 0; y <= _boardSize; y++)
@@ -70,9 +77,9 @@ public partial class Board : TileMap
 		
 	}
 	
-	private void MoveLineLeft(int line)
+	private void MoveRowLeft(int row)
 	{
-
+		//TODO: implement
 		// for (int x = 0; x < _boardSize-1; x++)
 		// {
 		// 	(_boardPieces[x, line].Type, _boardPieces[x+1, line].Type) = (_boardPieces[x+1, line].Type, _boardPieces[x, line].Type);
@@ -84,52 +91,76 @@ public partial class Board : TileMap
 		// 	
 		// }
 	}
+	private void MoveColumnDown(int column)
+	{
+		//TODO: implement
+	}
 	
-	private void MoveLineRight(int line)
+	private void MoveColumnUp(int column)
+	{
+		//TODO: implement
+	}
+	
+	private void MoveRowRight(int row)
 	{
 
-		PieceType last = _boardPieces[_boardSize - 1, line].Type;
+		PieceType last = _boardPieces[_boardSize - 1, row].Type;
 		for (int x = _boardSize - 1; x > 0; x--)
 		{
 
 			if (x == _boardSize - 1)
 			{
 				fake._sprite.Visible = true;
-				fake.Type = _boardPieces[x, line].Type;
+				fake.Type = _boardPieces[x, row].Type;
 				fake.SetColor();
-				fake.Position = new Vector2(0, Piece.Size * (line+1));
+				fake.Position = new Vector2(0, Piece.Size * (row+1));
 				fake.AnimateRight();
 			} 
-			_boardPieces[x, line].Type = _boardPieces[x-1, line].Type;
-			_boardPieces[x, line].AnimateRight();
+			_boardPieces[x, row].Type = _boardPieces[x-1, row].Type;
+			_boardPieces[x, row].AnimateRight();
 
 
 		}
-		_boardPieces[0, line].Type = last;
-		_boardPieces[0, line].AnimateRight();//AnimateRight();
+		_boardPieces[0, row].Type = last;
+		_boardPieces[0, row].AnimateRight();//AnimateRight();
 
 	}
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-	
+		TempMovePieces();
+	}
+
+	private void TempMovePieces()
+	{
 		if (Input.IsActionJustPressed("ui_left"))
 		{
 			if (canMakeMove())
-			{
-				//MoveLineRight(1);
-				MoveLineLeft(0);
+			{ 
+				MoveRowLeft(0);
 			}
-			
 		}
 		else if (Input.IsActionJustPressed("ui_right"))
 		{
 			if (canMakeMove())
 			{
-				MoveLineRight(0);
+				MoveRowRight(0);
 			}
 		}
-	
+		else if (Input.IsActionJustPressed("ui_down"))
+		{
+			if (canMakeMove())
+			{
+				MoveColumnDown(0);
+			}
+		}
+		else if (Input.IsActionJustPressed("ui_up"))
+		{
+			if (canMakeMove())
+			{
+				MoveColumnUp(0);
+			}
+		}
 	}
 
 	private bool canMakeMove()

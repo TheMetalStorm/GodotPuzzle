@@ -70,7 +70,9 @@ public partial class Piece : Node2D
 	
 	public override void _Process(double delta)
 	{
-		if (updateColor && _animationPlayer.CurrentAnimation != "idle" && !_animationPlayer.IsPlaying())
+		if (updateColor && 
+		    _animationPlayer.CurrentAnimation != "idle" &&
+		    !_animationPlayer.IsPlaying())		
 		{
 			
 			SetColor();
