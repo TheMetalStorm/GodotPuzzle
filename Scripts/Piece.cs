@@ -68,6 +68,13 @@ public partial class Piece : Node2D
 		updateColor = true;	
 	}
 	
+	public void AnimateDown()
+	{
+		_animationPlayer.Play("down", customSpeed: 2);
+		updateColor = true;	
+	}
+
+	
 	public override void _Process(double delta)
 	{
 		CleanupAfterColOrRowShift();

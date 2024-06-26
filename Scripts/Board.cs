@@ -11,7 +11,7 @@ public partial class Board : TileMap
 	private Piece _fake;
 	private PackedScene pieceScene;
 	[Export]
-	private int _boardSize = 3;
+	private int _boardSize = 4;
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -81,7 +81,7 @@ public partial class Board : TileMap
 		
 	}
 	
-	private void MoveRowLeft(int row)
+	private void ShiftRowLeft(int row)
 	{
 		PieceType first = _boardPieces[0, row].Type;
 		for (int x = 0; x < _boardSize-1; x++)
@@ -102,17 +102,8 @@ public partial class Board : TileMap
 		_boardPieces[_boardSize-1, row].Type = first;
 		_boardPieces[_boardSize-1, row].AnimateLeft();
 	}
-	private void MoveColumnDown(int column)
-	{
-		//TODO: implement
-	}
 	
-	private void MoveColumnUp(int column)
-	{
-		//TODO: implement
-	}
-	
-	private void MoveRowRight(int row)
+	private void ShiftRowRight(int row)
 	{
 		PieceType last = _boardPieces[_boardSize - 1, row].Type;
 		for (int x = _boardSize - 1; x > 0; x--)
@@ -121,7 +112,7 @@ public partial class Board : TileMap
 			if (x == _boardSize - 1)
 			{
 				_fake._sprite.Visible = true;
-				_fake.Type = _boardPieces[x, row].Type;
+				_fake.Type = last;
 				_fake.SetColor();
 				_fake.Position = new Vector2(0, Piece.Size * (row+1));
 				_fake.AnimateRight();
@@ -133,6 +124,34 @@ public partial class Board : TileMap
 		}
 		_boardPieces[0, row].Type = last;
 		_boardPieces[0, row].AnimateRight();
+	}
+	
+	private void ShiftColumnDown(int column)
+	{
+		PieceType lowest = _boardPieces[column, _boardSize-1].Type;
+		for (int y = _boardSize-1; y > 0 ; y--)
+		{
+			if (y == _boardSize-1)
+			{
+				_fake._sprite.Visible = true;
+				_fake.Type = lowest;
+				_fake.SetColor();
+				_fake.Position = new Vector2((column+1)*Piece.Size, 0);
+				_fake.AnimateDown();
+			} 
+			
+			_boardPieces[column, y].Type = _boardPieces[column, y-1 ].Type;
+			_boardPieces[column, y].AnimateDown();
+		
+		
+		}
+		_boardPieces[column, 0].Type = lowest;
+		 _boardPieces[column, 0].AnimateDown();
+	}
+	
+	private void ShiftColumnUp(int column)
+	{
+		//TODO: implement
 	}
 	
 	public override void _Process(double delta)
@@ -147,28 +166,28 @@ public partial class Board : TileMap
 		{
 			if (CanMakeMove())
 			{ 
-				MoveRowLeft(0);
+				ShiftRowLeft(1);
 			}
 		}
 		else if (Input.IsActionJustPressed("ui_right"))
 		{
 			if (CanMakeMove())
 			{
-				MoveRowRight(0);
+				ShiftRowRight(1);
 			}
 		}
 		else if (Input.IsActionJustPressed("ui_down"))
 		{
 			if (CanMakeMove())
 			{
-				MoveColumnDown(0);
+				ShiftColumnDown(2);
 			}
 		}
 		else if (Input.IsActionJustPressed("ui_up"))
 		{
 			if (CanMakeMove())
 			{
-				MoveColumnUp(0);
+				ShiftColumnUp(0);
 			}
 		}
 	}
