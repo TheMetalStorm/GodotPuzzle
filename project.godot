@@ -15,6 +15,10 @@ run/main_scene="res://Scenes/Game.tscn"
 config/features=PackedStringArray("4.2", "C#", "Mobile")
 config/icon="res://Graphics/icon.svg"
 
+[autoload]
+
+CustomSignals="*res://Scripts/CustomSignals.cs"
+
 [dotnet]
 
 project/assembly_name="Godot Test"

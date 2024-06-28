@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bxixh2uc3paoc"
-path="res://.godot/imported/tileStageForest.png-12aa41fe29244fadcea2f885961d5830.ctex"
+uid="uid://jiek7ro436hx"
+path="res://.godot/imported/sprEffectShimmerStar.png-709da1f1fe550614e83302f4ad1ab01c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Graphics/tileStageForest.png"
-dest_files=["res://.godot/imported/tileStageForest.png-12aa41fe29244fadcea2f885961d5830.ctex"]
+source_file="res://Graphics/Puzzle_Pals_Asset_Pack/PNG/sprEffectShimmerStar.png"
+dest_files=["res://.godot/imported/sprEffectShimmerStar.png-709da1f1fe550614e83302f4ad1ab01c.ctex"]
 
 [params]
 

@@ -1,0 +1,61 @@
+using Godot;
+using Godot.Collections;
+
+namespace GodotTest.Scripts;
+
+public partial class LilGuy : Path2D
+{
+	private const int ZIndexLine = 3;
+
+	private CustomSignals _customSignals;
+	private bool _gotPoints = false;
+	private PathFollow2D _traveller;
+	private AnimationPlayer _animationPlayer;
+	private Sprite2D _sprite2D;
+	[Export]
+	private float _speed = 20;
+	
+	// Called when the node enters the scene tree for the first time.
+	public override void _Ready()
+	{
+		ZIndex = ZIndexLine;
+		_traveller = GetChild<PathFollow2D>(0);
+		_sprite2D = _traveller.GetChild<Sprite2D>(0);
+		_animationPlayer = _traveller.GetChild<AnimationPlayer>(1);
+		_animationPlayer.Play("walk");
+		_customSignals = GetNode<CustomSignals>("/root/CustomSignals");
+		_customSignals.SetupPath2DPoints += OnPointsReceived;
+
+	}
+
+	// Called every frame. 'delta' is the elapsed time since the previous frame.
+	public override void _Process(double delta)
+	{
+		if(!_gotPoints) return;
+
+		if (Input.IsActionJustPressed("ui_accept"))
+		{
+			_speed = -_speed;
+			_sprite2D.FlipH = !_sprite2D.FlipH;
+		}
+
+		_traveller.Progress += (float)delta * _speed;
+	}
+	
+	public override void _Draw()
+	{
+		if(!_gotPoints) return;
+		DrawPolyline( Curve.GetBakedPoints(), Colors.Aquamarine, 1);
+	}
+
+	private void OnPointsReceived(Array<Vector2> input)
+	{
+		_gotPoints = true;
+		foreach (var v2 in input)
+		{
+			Curve.AddPoint(v2);	
+		}
+		
+	}
+	
+}

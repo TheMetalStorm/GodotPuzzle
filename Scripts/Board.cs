@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Diagnostics;
 using Godot;
 using Godot.Collections;
 
@@ -6,36 +8,58 @@ namespace GodotTest.Scripts;
 public partial class Board : TileMap
 {
 	private const int LayerIndexBorder = 0;
-	
-	private const int ZIndexPlayer = 0;
+	private const int ZIndexPiece = 0;
 	private const int ZIndexBorder = 1;
 
 	private Piece[,] _boardPieces;
 	private Piece _fake;
-	private PackedScene pieceScene;
-	[Export]
-	private int _boardSize = 4;
+	private PackedScene _pieceScene;
 	
-	// Called when the node enters the scene tree for the first time.
+	[Export]
+	private int _boardSize = 6;
+
+	private CustomSignals _customSignals;	
+
 	public override void _Ready()
 	{
-		pieceScene = GD.Load<PackedScene>("res://Scenes/Piece.tscn");
+		_customSignals = GetNode<CustomSignals>("/root/CustomSignals");
+		ZIndex = ZIndexBorder; 
+		_pieceScene = GD.Load<PackedScene>("res://Scenes/Piece.tscn");
+	
+		
 		CreateFakePiece();
 		_boardPieces = new Piece[_boardSize, _boardSize];
-		CenterBoard();
 		DrawBoardBg();
+		SetupPath2D();
 		PopulatePieces();
 	}
 
-	private void CenterBoard()
+
+
+	private void SetupPath2D()
 	{
-		Position -= new Vector2((_boardSize+1) * 8, (_boardSize+1) * 8);
+		var upLeft = Vector2.Zero;
+		var upRight = upLeft + Vector2.Right * (_boardSize+1f) * Piece.Size;
+		var downLeft = upLeft + Vector2.Down * (_boardSize+1f) * Piece.Size;
+		var downRight = upRight + Vector2.Down * (_boardSize+1f) * Piece.Size;
+
+		Array<Vector2> path = new Array<Vector2>
+		{
+			upLeft,
+			upRight,
+			downRight,
+			downLeft,
+			upLeft
+		};
+
+		_customSignals.EmitSignal(nameof(CustomSignals.SetupPath2DPoints), path);
+
 	}
 
 	private void CreateFakePiece()
 	{
-		_fake = pieceScene.Instantiate<Piece>();
-		_fake.GetChild<Sprite2D>(0).ZIndex = ZIndexPlayer;
+		_fake = _pieceScene.Instantiate<Piece>();
+		_fake.GetChild<Sprite2D>(0).ZIndex = ZIndexPiece;
 		_fake.fakePiece = true;
 		AddChild(_fake);
 		_fake._sprite.Visible = false;
@@ -47,10 +71,10 @@ public partial class Board : TileMap
 		{
 			for (int x = 0; x < _boardSize ; x++)
 			{
-				var piece = pieceScene.Instantiate<Piece>();
+				var piece = _pieceScene.Instantiate<Piece>();
 	
 				piece.Position =  new Vector2((x+1)*Piece.Size, (y+1)*Piece.Size);
-				_fake.GetChild<Sprite2D>(0).ZIndex = ZIndexPlayer;
+				_fake.GetChild<Sprite2D>(0).ZIndex = ZIndexPiece;
 				piece.SetRandomPiece();
 				_boardPieces[x, y] = piece;
 				AddChild(piece);
@@ -61,8 +85,7 @@ public partial class Board : TileMap
 
 	private void DrawBoardBg()
 	{
-		TileMap map = GetNode<TileMap>(".");
-		map.ZIndex = ZIndexBorder; 
+
 		Array<Vector2I> boardBg = new Array<Vector2I>();
 		
 		for (int y = 0; y <= _boardSize; y++)
@@ -70,11 +93,11 @@ public partial class Board : TileMap
 			for (int x = 0; x <= _boardSize; x++)
 			{
 				boardBg.Add(new Vector2I(x, y));		
-				map.EraseCell(LayerIndexBorder,new Vector2I(x, y));
+				EraseCell(LayerIndexBorder,new Vector2I(x, y));
 			}
 		}
 		
-		map.SetCellsTerrainConnect(LayerIndexBorder, boardBg,0, 0);
+		SetCellsTerrainConnect(LayerIndexBorder, boardBg,0, 0);
 		
 	}
 	
@@ -172,9 +195,13 @@ public partial class Board : TileMap
 
 	public override void _Process(double delta)
 	{
+
+
 		//TODO: replace with real movement
 		TempMovePieces();
 	}
+
+
 
 	private void TempMovePieces()
 	{
