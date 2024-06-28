@@ -21,7 +21,7 @@ public partial class LilGuy : Path2D
 	{
 		ZIndex = ZIndexLine;
 		_traveller = GetNode<PathFollow2D>("BorderPath");
-		_sprite2D = GetNode<Sprite2D>("BorderPath/WalkingSprite");
+		_sprite2D = GetNode<Sprite2D>("BorderPath/Sprite");
 		_animationPlayer = GetNode<AnimationPlayer>("BorderPath/AnimationPlayer");
 		_animationPlayer.Play("walk");
 		_customSignals = GetNode<CustomSignals>("/root/CustomSignals");
