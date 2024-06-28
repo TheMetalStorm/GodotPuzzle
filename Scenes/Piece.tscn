@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://dmviq3ngdlodo"]
 
 [ext_resource type="Script" path="res://Scripts/Piece.cs" id="1_uplu0"]
-[ext_resource type="Texture2D" uid="uid://bxixh2uc3paoc" path="res://Graphics/Puzzle_Pals_Asset_Pack/tileStageForest.png" id="2_x5ddb"]
+[ext_resource type="Texture2D" uid="uid://bce3ooixrcdib" path="res://Graphics/Puzzle_Pals_Asset_Pack/PNG/Blocks/Glass_Blocks/sprBlocks.png" id="2_ql2cb"]
 
 [sub_resource type="Animation" id="Animation_5i0vg"]
 length = 0.001
@@ -109,10 +109,8 @@ script = ExtResource("1_uplu0")
 
 [node name="Sprite" type="Sprite2D" parent="."]
 texture_filter = 1
-texture = ExtResource("2_x5ddb")
-hframes = 6
-vframes = 9
-frame = 51
+texture = ExtResource("2_ql2cb")
+hframes = 5
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

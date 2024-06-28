@@ -1,34 +1,18 @@
-[gd_scene load_steps=7 format=3 uid="uid://bwx4n5cf62rk8"]
+[gd_scene load_steps=9 format=3 uid="uid://bwx4n5cf62rk8"]
 
 [ext_resource type="Script" path="res://Scripts/LilGuy.cs" id="1_fcrt8"]
+[ext_resource type="Texture2D" uid="uid://bmmoam3nyinyv" path="res://Graphics/Puzzle_Pals_Asset_Pack/PNG/sprBlockyThrow.png" id="2_88i05"]
 [ext_resource type="Texture2D" uid="uid://cy4jhoaxaggbq" path="res://Graphics/Puzzle_Pals_Asset_Pack/PNG/sprBlockyWalk.png" id="2_euyrb"]
 
 [sub_resource type="Curve2D" id="Curve2D_ht117"]
 bake_interval = 0.01
-
-[sub_resource type="Animation" id="Animation_01emo"]
-resource_name = "walk"
-length = 2.0
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame_coords")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.5, 1, 1.5),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0)]
-}
 
 [sub_resource type="Animation" id="Animation_ogoc8"]
 length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame_coords")
+tracks/0/path = NodePath("WalkingSprite:frame_coords")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -37,27 +21,128 @@ tracks/0/keys = {
 "update": 1,
 "values": [Vector2i(0, 0)]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("WalkingSprite:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("PushingSprite:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_01emo"]
+resource_name = "walk"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("WalkingSprite:frame_coords")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1, 1.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("WalkingSprite:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("PushingSprite:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_6jprj"]
+resource_name = "push"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PushingSprite:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("WalkingSprite:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_qkrhu"]
 _data = {
 "RESET": SubResource("Animation_ogoc8"),
+"push": SubResource("Animation_6jprj"),
 "walk": SubResource("Animation_01emo")
 }
 
 [node name="LilGuy" type="Path2D"]
 curve = SubResource("Curve2D_ht117")
 script = ExtResource("1_fcrt8")
-_speed = 100.0
+_speed = 40.0
 
-[node name="PathFollow2D" type="PathFollow2D" parent="."]
+[node name="BorderPath" type="PathFollow2D" parent="."]
 
-[node name="Sprite2D" type="Sprite2D" parent="PathFollow2D"]
+[node name="PushingSprite" type="Sprite2D" parent="BorderPath"]
+visible = false
+texture_filter = 1
+texture = ExtResource("2_88i05")
+offset = Vector2(0, -7)
+hframes = 2
+frame = 1
+
+[node name="WalkingSprite" type="Sprite2D" parent="BorderPath"]
 texture_filter = 1
 texture = ExtResource("2_euyrb")
 offset = Vector2(0, -7)
 hframes = 4
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="PathFollow2D"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="BorderPath"]
 libraries = {
 "": SubResource("AnimationLibrary_qkrhu")
 }

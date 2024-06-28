@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Linq;
 using Godot;
 using Godot.Collections;
 
@@ -14,6 +15,7 @@ public partial class Board : TileMap
 	private Piece[,] _boardPieces;
 	private Piece _fake;
 	private PackedScene _pieceScene;
+	private bool _checkForEndOfMove;
 	
 	[Export]
 	private int _boardSize = 6;
@@ -25,7 +27,8 @@ public partial class Board : TileMap
 		_customSignals = GetNode<CustomSignals>("/root/CustomSignals");
 		ZIndex = ZIndexBorder; 
 		_pieceScene = GD.Load<PackedScene>("res://Scenes/Piece.tscn");
-	
+		_customSignals.ShiftLine += OnShiftLine;
+
 		
 		CreateFakePiece();
 		_boardPieces = new Piece[_boardSize, _boardSize];
@@ -59,7 +62,7 @@ public partial class Board : TileMap
 	private void CreateFakePiece()
 	{
 		_fake = _pieceScene.Instantiate<Piece>();
-		_fake.GetChild<Sprite2D>(0).ZIndex = ZIndexPiece;
+		_fake.GetNode<Sprite2D>("Sprite").ZIndex = ZIndexPiece;
 		_fake.fakePiece = true;
 		AddChild(_fake);
 		_fake._sprite.Visible = false;
@@ -74,11 +77,14 @@ public partial class Board : TileMap
 				var piece = _pieceScene.Instantiate<Piece>();
 	
 				piece.Position =  new Vector2((x+1)*Piece.Size, (y+1)*Piece.Size);
-				_fake.GetChild<Sprite2D>(0).ZIndex = ZIndexPiece;
 				piece.SetRandomPiece();
+				piece.GetChild<Sprite2D>(0).ZIndex = ZIndexPiece;
 				_boardPieces[x, y] = piece;
 				AddChild(piece);
+				GD.PrintRaw(piece.Type + " ");
+
 			}
+			GD.Print();
 		}
 	}
 	
@@ -193,57 +199,54 @@ public partial class Board : TileMap
 		_boardPieces[column, _boardSize - 1].AnimateUp();
 	}
 
-	public override void _Process(double delta)
+
+	private void OnShiftLine(Vector2 lilGuyPos)
 	{
-
-
-		//TODO: replace with real movement
-		TempMovePieces();
-	}
-
-
-
-	private void TempMovePieces()
-	{
-		if (Input.IsActionJustPressed("ui_left"))
-		{
-			if (CanMakeMove())
-			{ 
-				ShiftRowLeft(1);
-			}
-		}
-		else if (Input.IsActionJustPressed("ui_right"))
-		{
-			if (CanMakeMove())
-			{
-				ShiftRowRight(1);
-			}
-		}
-		else if (Input.IsActionJustPressed("ui_down"))
-		{
+		
+		// if (Input.IsActionJustPressed("ui_left"))
+		// {
+		// 	if (CanMakeMove())
+		// 	{ 
+		// 		ShiftRowLeft(1);
+		// 	}
+		// }
+		// else if (Input.IsActionJustPressed("ui_right"))
+		// {
+		// 	if (CanMakeMove())
+		// 	{
+		// 		ShiftRowRight(1);
+		// 	}
+		// }
+		// else if (Input.IsActionJustPressed("ui_down"))
+		// {
+		// 	if (CanMakeMove())
+		// 	{
+		// 		ShiftColumnDown(2);
+		// 	}
+		// }
+		// else if (Input.IsActionJustPressed("ui_up"))
+		// {
 			if (CanMakeMove())
 			{
-				ShiftColumnDown(2);
-			}
-		}
-		else if (Input.IsActionJustPressed("ui_up"))
-		{
-			if (CanMakeMove())
-			{
+				_checkForEndOfMove = true;
 				ShiftColumnUp(0);
 			}
-		}
+		// }
 	}
 
-	private bool CanMakeMove()
+	public override void _Process(double delta)
 	{
-		foreach (Piece piece in _boardPieces)
+		if (_checkForEndOfMove)
 		{
-			if (piece._animationPlayer.CurrentAnimation != "idle")
+			if (CanMakeMove())
 			{
-				return false;
+				_checkForEndOfMove = false;
+				_customSignals.EmitSignal(nameof(CustomSignals.ShiftAnimEnded));
 			}
 		}
-		return true;
+	}
+	private bool CanMakeMove()
+	{
+		return _boardPieces.Cast<Piece>().All(piece => piece._animationPlayer.CurrentAnimation == "idle");
 	}
 }

@@ -5,7 +5,7 @@ namespace GodotTest.Scripts;
 
 public enum PieceType
 {
-	RED, GREEN, BLUE, YELLOW, QUESTION
+	RED, GREEN, BLUE, YELLOW, VIOLET
 }
 public partial class Piece : Node2D
 {
@@ -19,8 +19,8 @@ public partial class Piece : Node2D
 	public Sprite2D _sprite;
 	public override void _Ready()
 	{
-		_animationPlayer = GetChild<AnimationPlayer>(1);
-		_sprite = GetChild<Sprite2D>(0);
+		_animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
+		_sprite = GetNode<Sprite2D>("Sprite");
 		_animationPlayer.CurrentAnimation = "idle";
 		SetColor();
 	}
@@ -30,19 +30,19 @@ public partial class Piece : Node2D
 		switch (Type)
 		{
 			case PieceType.BLUE:
-				_sprite.Frame = 49;
+				_sprite.Frame = 1;
 				break;
 			case PieceType.RED:
-				_sprite.Frame = 50;
+				_sprite.Frame = 2;
 				break;
 			case PieceType.YELLOW:
-				_sprite.Frame = 51;
+				_sprite.Frame = 3;
 				break;
 			case PieceType.GREEN:
-				_sprite.Frame = 52;
+				_sprite.Frame = 4;
 				break;
-			case PieceType.QUESTION:
-				_sprite.Frame = 53;
+			case PieceType.VIOLET:
+				_sprite.Frame = 0;
 				break;
 		}
 	}

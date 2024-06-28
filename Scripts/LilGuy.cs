@@ -12,6 +12,7 @@ public partial class LilGuy : Path2D
 	private PathFollow2D _traveller;
 	private AnimationPlayer _animationPlayer;
 	private Sprite2D _sprite2D;
+	private bool _canMove = true;
 	[Export]
 	private float _speed = 20;
 	
@@ -19,12 +20,13 @@ public partial class LilGuy : Path2D
 	public override void _Ready()
 	{
 		ZIndex = ZIndexLine;
-		_traveller = GetChild<PathFollow2D>(0);
-		_sprite2D = _traveller.GetChild<Sprite2D>(0);
-		_animationPlayer = _traveller.GetChild<AnimationPlayer>(1);
+		_traveller = GetNode<PathFollow2D>("BorderPath");
+		_sprite2D = GetNode<Sprite2D>("BorderPath/WalkingSprite");
+		_animationPlayer = GetNode<AnimationPlayer>("BorderPath/AnimationPlayer");
 		_animationPlayer.Play("walk");
 		_customSignals = GetNode<CustomSignals>("/root/CustomSignals");
 		_customSignals.SetupPath2DPoints += OnPointsReceived;
+		_customSignals.ShiftAnimEnded += OnShiftAnimEnd;
 
 	}
 
@@ -32,7 +34,7 @@ public partial class LilGuy : Path2D
 	public override void _Process(double delta)
 	{
 		if(!_gotPoints) return;
-
+		if(!_canMove) return;
 		if (Input.IsActionJustPressed("ui_accept"))
 		{
 			_speed = -_speed;
@@ -40,6 +42,14 @@ public partial class LilGuy : Path2D
 		}
 
 		_traveller.Progress += (float)delta * _speed;
+
+		if (Input.IsActionJustPressed("ui_down"))
+		{
+			_canMove = false;
+			_animationPlayer.Play("push");
+			_customSignals.EmitSignal(nameof(CustomSignals.ShiftLine), Position);
+		}
+
 	}
 	
 	public override void _Draw()
@@ -58,4 +68,11 @@ public partial class LilGuy : Path2D
 		
 	}
 	
+	private void OnShiftAnimEnd()
+	{
+		_canMove = true;
+		_animationPlayer.Stop();
+		_animationPlayer.Play("walk");
+		
+	}
 }
