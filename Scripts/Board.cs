@@ -116,7 +116,7 @@ public partial class Board : TileMap
 				_fake._sprite.Visible = true;
 				_fake.Type = _boardPieces[x, row].Type;
 				_fake.SetColor();
-				_fake.Position = new Vector2((_boardSize)*Piece.Size, Piece.Size * row);
+				_fake.Position = new Vector2(_boardSize*Piece.Size, Piece.Size * row);
 				_fake.AnimateLeft();
 			} 
 			_boardPieces[x, row].Type = _boardPieces[x+1, row].Type;
@@ -201,70 +201,51 @@ public partial class Board : TileMap
 
 	private void OnShiftLine(Vector2 lilGuyPos)
 	{
-		
-		// if (Input.IsActionJustPressed("ui_left"))
-		// {
-		// 	if (CanMakeMove())
-		// 	{ 
-		// 		ShiftRowLeft(1);
-		// 	}
-		// }
-		// else if (Input.IsActionJustPressed("ui_right"))
-		// {
-		// 	if (CanMakeMove())
-		// 	{
-		// 		ShiftRowRight(1);
-		// 	}
-		// }
-		// else if (Input.IsActionJustPressed("ui_down"))
-		// {
-		// 	if (CanMakeMove())
-		// 	{
-		// 		ShiftColumnDown(2);
-		// 	}
-		// }
-		// else if (Input.IsActionJustPressed("ui_up"))
-		// {
-			if (CanMakeMove())
+		var lilGuyMapPos = LocalToMap(lilGuyPos);
+		if (!IsValidMovePos(lilGuyMapPos)) return;
+		_customSignals.EmitSignal(nameof(CustomSignals.ShiftAllowed));
+		if (AllPiecesIdle())
+		{
+			if (lilGuyMapPos.X == -1)
 			{
-				_checkForEndOfMove = true;
-				
-	
-					ShiftColumnUp(0);
-				
-
-				// else if (lilGuyPos.Y == 0)
-				// {
-				// 	ShiftColumnDown(0);
-				// }
-				// else if (lilGuyPos.X >= (_boardSize+1)*Piece.Size)
-				// {
-				// 	ShiftRowLeft(0);
-				// }
-				//
-				// else if (lilGuyPos.X == 0)
-				// {
-				// 	ShiftRowRight(0);
-				// }
-				//depending on lil guy pos, shift row or column
-				
+				ShiftRowRight(lilGuyMapPos.Y);
 			}
-		// }
+			else if (lilGuyMapPos.X == _boardSize)
+			{
+				ShiftRowLeft(lilGuyMapPos.Y);
+			}
+			else if (lilGuyMapPos.Y == -1)
+			{
+				ShiftColumnDown(lilGuyMapPos.X);
+			}
+			else if (lilGuyMapPos.Y == _boardSize)
+			{
+				ShiftColumnUp(lilGuyMapPos.X);
+			}
+			_checkForEndOfMove = true;
+		}
+	}
+
+	private bool IsValidMovePos(Vector2I lilGuyMapPos)
+	{
+		return lilGuyMapPos != new Vector2I(-1,-1) &&
+		       lilGuyMapPos != new Vector2I(-1,_boardSize) &&
+		       lilGuyMapPos != new Vector2I(_boardSize,_boardSize) &&
+		       lilGuyMapPos != new Vector2I(_boardSize,-1);
 	}
 
 	public override void _Process(double delta)
 	{
 		if (_checkForEndOfMove)
 		{
-			//TODO: only check the thigns that are actually shifting 
-			if (CanMakeMove())
+			if (AllPiecesIdle())
 			{
 				_checkForEndOfMove = false;
 				_customSignals.EmitSignal(nameof(CustomSignals.ShiftAnimEnded));
 			}
 		}
 	}
-	private bool CanMakeMove()
+	private bool AllPiecesIdle()
 	{
 		return _boardPieces.Cast<Piece>().All(piece => piece._animationPlayer.CurrentAnimation == "idle");
 	}

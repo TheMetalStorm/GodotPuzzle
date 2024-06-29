@@ -26,6 +26,7 @@ public partial class LilGuy : Path2D
 		_animationPlayer.Play("walk");
 		_customSignals = GetNode<CustomSignals>("/root/CustomSignals");
 		_customSignals.SetupPath2DPoints += OnPointsReceived;
+		_customSignals.ShiftAllowed += OnShiftAllowed;
 		_customSignals.ShiftAnimEnded += OnShiftAnimEnd;
 
 	}
@@ -45,11 +46,16 @@ public partial class LilGuy : Path2D
 
 		if (Input.IsActionJustPressed("ui_down"))
 		{
-			_canMove = false;
-			_animationPlayer.Play("push");
+			
 			_customSignals.EmitSignal(nameof(CustomSignals.ShiftLine), _traveller.Position);
 		}
 
+	}
+
+	private void OnShiftAllowed()
+	{
+		_canMove = false;
+		_animationPlayer.Play("push");
 	}
 	
 	public override void _Draw()
