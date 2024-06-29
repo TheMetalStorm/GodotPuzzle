@@ -11,6 +11,6 @@ public partial class CustomSignals : Node
     public delegate void ShiftLineEventHandler(Vector2 lilGuiPoss);
     [Signal]
     public delegate void ShiftAnimEndedEventHandler();
-    public delegate void SetupCameraEventHandler(Vector2 cameraOffset);
+    // public delegate void SetupCameraEventHandler(Vector2 cameraOffset);
 
 }

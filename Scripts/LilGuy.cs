@@ -47,7 +47,7 @@ public partial class LilGuy : Path2D
 		{
 			_canMove = false;
 			_animationPlayer.Play("push");
-			_customSignals.EmitSignal(nameof(CustomSignals.ShiftLine), Position);
+			_customSignals.EmitSignal(nameof(CustomSignals.ShiftLine), _traveller.Position);
 		}
 
 	}

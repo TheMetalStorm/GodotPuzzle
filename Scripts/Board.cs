@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Linq;
@@ -229,7 +230,27 @@ public partial class Board : TileMap
 			if (CanMakeMove())
 			{
 				_checkForEndOfMove = true;
-				ShiftColumnUp(0);
+				
+				if (lilGuyPos.Y>= (_boardSize+1)*Piece.Size)
+				{
+					ShiftColumnUp(0);
+				}
+
+				else if (lilGuyPos.Y == 0)
+				{
+					ShiftColumnDown(0);
+				}
+				else if (lilGuyPos.X >= (_boardSize+1)*Piece.Size)
+				{
+					ShiftRowRight(0);
+				}
+
+				else if (lilGuyPos.X == 0)
+				{
+					ShiftRowLeft(0);
+				}
+				//depending on lil guy pos, shift row or column
+				
 			}
 		// }
 	}
@@ -238,6 +259,7 @@ public partial class Board : TileMap
 	{
 		if (_checkForEndOfMove)
 		{
+			//TODO: only check the thigns that are actually shifting 
 			if (CanMakeMove())
 			{
 				_checkForEndOfMove = false;
