@@ -109,6 +109,7 @@ script = ExtResource("1_uplu0")
 
 [node name="Sprite" type="Sprite2D" parent="."]
 texture_filter = 1
+position = Vector2(8, 8)
 texture = ExtResource("2_ql2cb")
 hframes = 5
 

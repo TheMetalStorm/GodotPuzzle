@@ -42,10 +42,10 @@ public partial class Board : TileMap
 
 	private void SetupPath2D()
 	{
-		var upLeft = Vector2.Zero;
-		var upRight = upLeft + Vector2.Right * (_boardSize+1f) * Piece.Size;
-		var downLeft = upLeft + Vector2.Down * (_boardSize+1f) * Piece.Size;
-		var downRight = upRight + Vector2.Down * (_boardSize+1f) * Piece.Size;
+		var upLeft = new Vector2(-Piece.Size / 2f  , -Piece.Size / 2f);
+		var upRight = upLeft + Vector2.Right * (_boardSize+1) * Piece.Size;
+		var downLeft = upLeft + Vector2.Down * (_boardSize+1) * Piece.Size;
+		var downRight = upRight + Vector2.Down * (_boardSize+1) * Piece.Size;
 
 		Array<Vector2> path = new Array<Vector2>
 		{
@@ -77,15 +77,13 @@ public partial class Board : TileMap
 			{
 				var piece = _pieceScene.Instantiate<Piece>();
 	
-				piece.Position =  new Vector2((x+1)*Piece.Size, (y+1)*Piece.Size);
+				piece.Position =  new Vector2(x * Piece.Size, Position.Y + y * Piece.Size);
 				piece.SetRandomPiece();
 				piece.GetChild<Sprite2D>(0).ZIndex = ZIndexPiece;
 				_boardPieces[x, y] = piece;
 				AddChild(piece);
-				GD.PrintRaw(piece.Type + " ");
 
 			}
-			GD.Print();
 		}
 	}
 	
@@ -95,9 +93,9 @@ public partial class Board : TileMap
 
 		Array<Vector2I> boardBg = new Array<Vector2I>();
 		
-		for (int y = 0; y <= _boardSize; y++)
+		for (int y = -1; y <= _boardSize; y++)
 		{
-			for (int x = 0; x <= _boardSize; x++)
+			for (int x = -1; x <= _boardSize; x++)
 			{
 				boardBg.Add(new Vector2I(x, y));		
 				EraseCell(LayerIndexBorder,new Vector2I(x, y));
@@ -118,7 +116,7 @@ public partial class Board : TileMap
 				_fake._sprite.Visible = true;
 				_fake.Type = _boardPieces[x, row].Type;
 				_fake.SetColor();
-				_fake.Position = new Vector2((_boardSize+1)*Piece.Size, Piece.Size * (row+1));
+				_fake.Position = new Vector2((_boardSize)*Piece.Size, Piece.Size * row);
 				_fake.AnimateLeft();
 			} 
 			_boardPieces[x, row].Type = _boardPieces[x+1, row].Type;
@@ -141,7 +139,7 @@ public partial class Board : TileMap
 				_fake._sprite.Visible = true;
 				_fake.Type = last;
 				_fake.SetColor();
-				_fake.Position = new Vector2(0, Piece.Size * (row+1));
+				_fake.Position = new Vector2(-1 * Piece.Size, Piece.Size * row);
 				_fake.AnimateRight();
 			} 
 			_boardPieces[x, row].Type = _boardPieces[x-1, row].Type;
@@ -163,7 +161,7 @@ public partial class Board : TileMap
 				_fake._sprite.Visible = true;
 				_fake.Type = lowest;
 				_fake.SetColor();
-				_fake.Position = new Vector2((column+1)*Piece.Size, 0);
+				_fake.Position = new Vector2(column * Piece.Size, -1 * Piece.Size);
 				_fake.AnimateDown();
 			} 
 			
@@ -186,7 +184,7 @@ public partial class Board : TileMap
 				_fake._sprite.Visible = true;
 				_fake.Type = _boardPieces[column, y].Type;
 				_fake.SetColor();
-				_fake.Position = new Vector2((column+1)*Piece.Size, (_boardSize+1) * Piece.Size);
+				_fake.Position = new Vector2(column * Piece.Size, _boardSize * Piece.Size);
 				_fake.AnimateUp();
 			}
 
@@ -231,24 +229,23 @@ public partial class Board : TileMap
 			{
 				_checkForEndOfMove = true;
 				
-				if (lilGuyPos.Y>= (_boardSize+1)*Piece.Size)
-				{
+	
 					ShiftColumnUp(0);
-				}
+				
 
-				else if (lilGuyPos.Y == 0)
-				{
-					ShiftColumnDown(0);
-				}
-				else if (lilGuyPos.X >= (_boardSize+1)*Piece.Size)
-				{
-					ShiftRowLeft(0);
-				}
-
-				else if (lilGuyPos.X == 0)
-				{
-					ShiftRowRight(0);
-				}
+				// else if (lilGuyPos.Y == 0)
+				// {
+				// 	ShiftColumnDown(0);
+				// }
+				// else if (lilGuyPos.X >= (_boardSize+1)*Piece.Size)
+				// {
+				// 	ShiftRowLeft(0);
+				// }
+				//
+				// else if (lilGuyPos.X == 0)
+				// {
+				// 	ShiftRowRight(0);
+				// }
 				//depending on lil guy pos, shift row or column
 				
 			}
