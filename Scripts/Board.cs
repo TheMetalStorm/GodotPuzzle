@@ -242,12 +242,12 @@ public partial class Board : TileMap
 				}
 				else if (lilGuyPos.X >= (_boardSize+1)*Piece.Size)
 				{
-					ShiftRowRight(0);
+					ShiftRowLeft(0);
 				}
 
 				else if (lilGuyPos.X == 0)
 				{
-					ShiftRowLeft(0);
+					ShiftRowRight(0);
 				}
 				//depending on lil guy pos, shift row or column
 				
