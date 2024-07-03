@@ -7,6 +7,10 @@ using Godot.Collections;
 
 namespace GodotTest.Scripts;
 
+enum BoardState
+{
+	SHIFTING, PLAYERCONTROL
+}
 public partial class Board : TileMap
 {
 	private const int LayerIndexBorder = 0;
@@ -122,9 +126,9 @@ public partial class Board : TileMap
 		{
 			if (x == 0)
 			{
-				SetupFakePiece(_fake, first, new Vector2(_boardSize*Piece.Size, Piece.Size * row));
+				PrepareFakePieceForAnimation(_fake, first, new Vector2(_boardSize*Piece.Size, Piece.Size * row));
 				_fake.AnimateLeft();
-				SetupFakePiece(_fake2, second, new Vector2((_boardSize+1)*Piece.Size, Piece.Size * row));
+				PrepareFakePieceForAnimation(_fake2, second, new Vector2((_boardSize+1)*Piece.Size, Piece.Size * row));
 				_fake2.AnimateLeft();
 			} 
 			_boardPieces[x, row].Type = _boardPieces[x+1, row].Type;
@@ -146,9 +150,9 @@ public partial class Board : TileMap
 
 			if (x == _boardSize - 1)
 			{
-				SetupFakePiece(_fake, last, new Vector2(-1 * Piece.Size, Piece.Size * row));
+				PrepareFakePieceForAnimation(_fake, last, new Vector2(-1 * Piece.Size, Piece.Size * row));
 				_fake.AnimateRight();
-				SetupFakePiece(_fake2, beforeLast, new Vector2(-2 * Piece.Size, Piece.Size * row));
+				PrepareFakePieceForAnimation(_fake2, beforeLast, new Vector2(-2 * Piece.Size, Piece.Size * row));
 				_fake2.AnimateRight();
 			} 
 			_boardPieces[x, row].Type = _boardPieces[x-1, row].Type;
@@ -168,9 +172,9 @@ public partial class Board : TileMap
 		{
 			if (y == 0)
 			{
-				SetupFakePiece(_fake, _boardPieces[column, y].Type, new Vector2(column * Piece.Size, _boardSize * Piece.Size));
+				PrepareFakePieceForAnimation(_fake, _boardPieces[column, y].Type, new Vector2(column * Piece.Size, _boardSize * Piece.Size));
 				_fake.AnimateUp();
-				SetupFakePiece(_fake2, _boardPieces[column, y+1].Type, new Vector2(column * Piece.Size, (_boardSize+1) * Piece.Size));
+				PrepareFakePieceForAnimation(_fake2, _boardPieces[column, y+1].Type, new Vector2(column * Piece.Size, (_boardSize+1) * Piece.Size));
 				_fake2.AnimateUp();
 			}
 			_boardPieces[column, y].Type = _boardPieces[column, y + 1].Type;
@@ -190,9 +194,9 @@ public partial class Board : TileMap
 		{
 			if (y == _boardSize-1)
 			{
-				SetupFakePiece(_fake, lowest, new Vector2(column * Piece.Size, -1 * Piece.Size));
+				PrepareFakePieceForAnimation(_fake, lowest, new Vector2(column * Piece.Size, -1 * Piece.Size));
 				_fake.AnimateDown();
-				SetupFakePiece(_fake2, secondLowest, new Vector2(column * Piece.Size, -2 * Piece.Size));
+				PrepareFakePieceForAnimation(_fake2, secondLowest, new Vector2(column * Piece.Size, -2 * Piece.Size));
 				_fake2.AnimateDown();
 			} 
 			_boardPieces[column, y].Type = _boardPieces[column, y-1 ].Type;
@@ -202,11 +206,10 @@ public partial class Board : TileMap
 		_boardPieces[column, 0].AnimateDown();
 	}
 	
-	private void SetupFakePiece(Piece fakePiece, PieceType newType, Vector2 newPos)
+	private void PrepareFakePieceForAnimation(Piece fakePiece, PieceType newType, Vector2 newPos)
 	{
 		fakePiece._sprite.Visible = true;
-		fakePiece.Type = newType;
-		fakePiece.SetColor();
+		fakePiece.UpdateType(newType);
 		fakePiece.Position = newPos;
 	}
 
@@ -247,6 +250,10 @@ public partial class Board : TileMap
 
 	public override void _Process(double delta)
 	{
+		// if (BoardState.Shifting)
+		// {
+		//
+		// }
 		if (_checkForEndOfMove)
 		{
 			if (AllPiecesIdle())

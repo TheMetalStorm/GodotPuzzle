@@ -25,7 +25,13 @@ public partial class Piece : Node2D
 		SetColor();
 	}
 
-	public void SetColor()
+	public void UpdateType(PieceType type)
+	{
+		Type = type;
+		SetColor();
+	}
+	
+	private void SetColor()
 	{
 		switch (Type)
 		{
