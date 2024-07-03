@@ -217,10 +217,10 @@ public partial class Board : TileMap
 		var lilGuyMapPos = LocalToMap(lilGuyPos);
 		if (!IsValidMovePos(lilGuyMapPos)) return;
 		_customSignals.EmitSignal(nameof(CustomSignals.ShiftAllowed));
-		if (AllPiecesIdle()) _boardState = BoardState.PLAYERCONTROL;
-        
 		if (_boardState == BoardState.PLAYERCONTROL)
 		{
+			_boardState = BoardState.SHIFTING;
+
 			if (lilGuyMapPos.X == -1)
 			{
 				ShiftRowRight(lilGuyMapPos.Y);
@@ -237,7 +237,6 @@ public partial class Board : TileMap
 			{
 				ShiftColumnUp(lilGuyMapPos.X);
 			}
-			_boardState = BoardState.SHIFTING;
 		}
 	}
 
@@ -251,10 +250,6 @@ public partial class Board : TileMap
 
 	public override void _Process(double delta)
 	{
-		// if (BoardState.Shifting)
-		// {
-		//
-		// }
 		if (_boardState == BoardState.SHIFTING)
 		{
 			if (AllPiecesIdle())

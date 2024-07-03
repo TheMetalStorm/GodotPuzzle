@@ -3,6 +3,11 @@ using Godot.Collections;
 
 namespace GodotTest.Scripts;
 
+
+enum LilGuyState
+{
+	MOVING, SHIFTING,
+}
 public partial class LilGuy : Path2D
 {
 	private const int ZIndexLine = 3;
@@ -12,7 +17,7 @@ public partial class LilGuy : Path2D
 	private PathFollow2D _traveller;
 	private AnimationPlayer _animationPlayer;
 	private Sprite2D _sprite2D;
-	private bool _canMove = true;
+	private LilGuyState _state = LilGuyState.MOVING;
 	[Export]
 	private float _speed = 20;
 	
@@ -35,26 +40,28 @@ public partial class LilGuy : Path2D
 	public override void _Process(double delta)
 	{
 		if(!_gotPoints) return;
-		if(!_canMove) return;
-		if (Input.IsActionJustPressed("ui_accept"))
+		if (_state == LilGuyState.MOVING)
 		{
-			_speed = -_speed;
-			_sprite2D.FlipH = !_sprite2D.FlipH;
-		}
+			if (Input.IsActionJustPressed("ui_accept"))
+			{
+				_speed = -_speed;
+				_sprite2D.FlipH = !_sprite2D.FlipH;
+			}
 
-		_traveller.Progress += (float)delta * _speed;
+			_traveller.Progress += (float)delta * _speed;
 
-		if (Input.IsActionJustPressed("ui_down"))
-		{
+			if (Input.IsActionJustPressed("ui_down"))
+			{
 			
-			_customSignals.EmitSignal(nameof(CustomSignals.ShiftLine), _traveller.Position);
-		}
+				_customSignals.EmitSignal(nameof(CustomSignals.ShiftLine), _traveller.Position);
+			}
 
+		}
 	}
 
 	private void OnShiftAllowed()
 	{
-		_canMove = false;
+		_state = LilGuyState.SHIFTING;
 		_animationPlayer.Play("push");
 	}
 	
@@ -77,7 +84,7 @@ public partial class LilGuy : Path2D
 	
 	private void OnShiftAnimEnd()
 	{
-		_canMove = true;
+		_state = LilGuyState.MOVING;
 		_animationPlayer.Stop();
 		_animationPlayer.Play("walk");
 		
