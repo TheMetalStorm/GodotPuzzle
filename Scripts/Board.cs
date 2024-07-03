@@ -21,8 +21,7 @@ public partial class Board : TileMap
 	private Piece _fake;
 	private Piece _fake2;
 	private PackedScene _pieceScene;
-	private bool _checkForEndOfMove;
-	
+	private BoardState _boardState = BoardState.PLAYERCONTROL;
 	[Export]
 	private int _boardSize = 6;
 
@@ -218,7 +217,9 @@ public partial class Board : TileMap
 		var lilGuyMapPos = LocalToMap(lilGuyPos);
 		if (!IsValidMovePos(lilGuyMapPos)) return;
 		_customSignals.EmitSignal(nameof(CustomSignals.ShiftAllowed));
-		if (AllPiecesIdle())
+		if (AllPiecesIdle()) _boardState = BoardState.PLAYERCONTROL;
+        
+		if (_boardState == BoardState.PLAYERCONTROL)
 		{
 			if (lilGuyMapPos.X == -1)
 			{
@@ -236,7 +237,7 @@ public partial class Board : TileMap
 			{
 				ShiftColumnUp(lilGuyMapPos.X);
 			}
-			_checkForEndOfMove = true;
+			_boardState = BoardState.SHIFTING;
 		}
 	}
 
@@ -254,11 +255,11 @@ public partial class Board : TileMap
 		// {
 		//
 		// }
-		if (_checkForEndOfMove)
+		if (_boardState == BoardState.SHIFTING)
 		{
 			if (AllPiecesIdle())
 			{
-				_checkForEndOfMove = false;
+				_boardState = BoardState.PLAYERCONTROL;
 				_customSignals.EmitSignal(nameof(CustomSignals.ShiftAnimEnded));
 			}
 		}
