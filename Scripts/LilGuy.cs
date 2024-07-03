@@ -58,11 +58,12 @@ public partial class LilGuy : Path2D
 		_animationPlayer.Play("push");
 	}
 	
-	public override void _Draw()
-	{
-		if(!_gotPoints) return;
-		DrawPolyline( Curve.GetBakedPoints(), Colors.Aquamarine, 1);
-	}
+	
+	// public override void _Draw()
+	// {
+		// if(!_gotPoints) return;
+		// DrawPolyline( Curve.GetBakedPoints(), Colors.Aquamarine, 1);
+	// }
 
 	private void OnPointsReceived(Array<Vector2> input)
 	{

@@ -15,6 +15,7 @@ public partial class Board : TileMap
 
 	private Piece[,] _boardPieces;
 	private Piece _fake;
+	private Piece _fake2;
 	private PackedScene _pieceScene;
 	private bool _checkForEndOfMove;
 	
@@ -31,7 +32,7 @@ public partial class Board : TileMap
 		_customSignals.ShiftLine += OnShiftLine;
 
 		
-		CreateFakePiece();
+		CreateFakePieces();
 		_boardPieces = new Piece[_boardSize, _boardSize];
 		DrawBoardBg();
 		SetupPath2D();
@@ -60,13 +61,19 @@ public partial class Board : TileMap
 
 	}
 
-	private void CreateFakePiece()
+	private void CreateFakePieces()
 	{
 		_fake = _pieceScene.Instantiate<Piece>();
 		_fake.GetNode<Sprite2D>("Sprite").ZIndex = ZIndexPiece;
 		_fake.fakePiece = true;
 		AddChild(_fake);
 		_fake._sprite.Visible = false;
+		
+		_fake2 = _pieceScene.Instantiate<Piece>();
+		_fake2.GetNode<Sprite2D>("Sprite").ZIndex = ZIndexPiece;
+		_fake2.fakePiece = true;
+		AddChild(_fake2);
+		_fake2._sprite.Visible = false;
 	}
 
 	private void PopulatePieces()
@@ -109,15 +116,16 @@ public partial class Board : TileMap
 	private void ShiftRowLeft(int row)
 	{
 		PieceType first = _boardPieces[0, row].Type;
+		PieceType second = _boardPieces[1, row].Type;
+
 		for (int x = 0; x < _boardSize-1; x++)
 		{
 			if (x == 0)
 			{
-				_fake._sprite.Visible = true;
-				_fake.Type = _boardPieces[x, row].Type;
-				_fake.SetColor();
-				_fake.Position = new Vector2(_boardSize*Piece.Size, Piece.Size * row);
+				SetupFakePiece(_fake, first, new Vector2(_boardSize*Piece.Size, Piece.Size * row));
 				_fake.AnimateLeft();
+				SetupFakePiece(_fake2, second, new Vector2((_boardSize+1)*Piece.Size, Piece.Size * row));
+				_fake2.AnimateLeft();
 			} 
 			_boardPieces[x, row].Type = _boardPieces[x+1, row].Type;
 			_boardPieces[x, row].AnimateLeft();
@@ -131,16 +139,17 @@ public partial class Board : TileMap
 	private void ShiftRowRight(int row)
 	{
 		PieceType last = _boardPieces[_boardSize - 1, row].Type;
+		PieceType beforeLast = _boardPieces[_boardSize - 2, row].Type;
+
 		for (int x = _boardSize - 1; x > 0; x--)
 		{
 
 			if (x == _boardSize - 1)
 			{
-				_fake._sprite.Visible = true;
-				_fake.Type = last;
-				_fake.SetColor();
-				_fake.Position = new Vector2(-1 * Piece.Size, Piece.Size * row);
+				SetupFakePiece(_fake, last, new Vector2(-1 * Piece.Size, Piece.Size * row));
 				_fake.AnimateRight();
+				SetupFakePiece(_fake2, beforeLast, new Vector2(-2 * Piece.Size, Piece.Size * row));
+				_fake2.AnimateRight();
 			} 
 			_boardPieces[x, row].Type = _boardPieces[x-1, row].Type;
 			_boardPieces[x, row].AnimateRight();
@@ -150,54 +159,56 @@ public partial class Board : TileMap
 		_boardPieces[0, row].Type = last;
 		_boardPieces[0, row].AnimateRight();
 	}
-	
-	private void ShiftColumnDown(int column)
-	{
-		PieceType lowest = _boardPieces[column, _boardSize-1].Type;
-		for (int y = _boardSize-1; y > 0 ; y--)
-		{
-			if (y == _boardSize-1)
-			{
-				_fake._sprite.Visible = true;
-				_fake.Type = lowest;
-				_fake.SetColor();
-				_fake.Position = new Vector2(column * Piece.Size, -1 * Piece.Size);
-				_fake.AnimateDown();
-			} 
-			
-			_boardPieces[column, y].Type = _boardPieces[column, y-1 ].Type;
-			_boardPieces[column, y].AnimateDown();
-		
-		
-		}
-		_boardPieces[column, 0].Type = lowest;
-		_boardPieces[column, 0].AnimateDown();
-	}
 
 	private void ShiftColumnUp(int column)
 	{
 		PieceType highest = _boardPieces[column, 0].Type;
+		
 		for (int y = 0; y < _boardSize - 1; y++)
 		{
 			if (y == 0)
 			{
-				_fake._sprite.Visible = true;
-				_fake.Type = _boardPieces[column, y].Type;
-				_fake.SetColor();
-				_fake.Position = new Vector2(column * Piece.Size, _boardSize * Piece.Size);
+				SetupFakePiece(_fake, _boardPieces[column, y].Type, new Vector2(column * Piece.Size, _boardSize * Piece.Size));
 				_fake.AnimateUp();
+				SetupFakePiece(_fake2, _boardPieces[column, y+1].Type, new Vector2(column * Piece.Size, (_boardSize+1) * Piece.Size));
+				_fake2.AnimateUp();
 			}
-
 			_boardPieces[column, y].Type = _boardPieces[column, y + 1].Type;
 			_boardPieces[column, y].AnimateUp();
-
-
+			
 		}
-
 		_boardPieces[column, _boardSize - 1].Type = highest;
 		_boardPieces[column, _boardSize - 1].AnimateUp();
 	}
 
+	private void ShiftColumnDown(int column)
+	{
+		PieceType lowest = _boardPieces[column, _boardSize-1].Type;
+		PieceType secondLowest = _boardPieces[column, _boardSize-2].Type;//only needed because anim overshoots 
+
+		for (int y = _boardSize-1; y > 0 ; y--)
+		{
+			if (y == _boardSize-1)
+			{
+				SetupFakePiece(_fake, lowest, new Vector2(column * Piece.Size, -1 * Piece.Size));
+				_fake.AnimateDown();
+				SetupFakePiece(_fake2, secondLowest, new Vector2(column * Piece.Size, -2 * Piece.Size));
+				_fake2.AnimateDown();
+			} 
+			_boardPieces[column, y].Type = _boardPieces[column, y-1 ].Type;
+			_boardPieces[column, y].AnimateDown();
+		}
+		_boardPieces[column, 0].Type = lowest;
+		_boardPieces[column, 0].AnimateDown();
+	}
+	
+	private void SetupFakePiece(Piece fakePiece, PieceType newType, Vector2 newPos)
+	{
+		fakePiece._sprite.Visible = true;
+		fakePiece.Type = newType;
+		fakePiece.SetColor();
+		fakePiece.Position = newPos;
+	}
 
 	private void OnShiftLine(Vector2 lilGuyPos)
 	{
