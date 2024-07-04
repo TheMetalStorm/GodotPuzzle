@@ -5,23 +5,25 @@ namespace GodotTest.Scripts;
 
 public enum PieceType
 {
-	RED, GREEN, BLUE, YELLOW, VIOLET
+	Red, Green, Blue, Yellow, Violet
 }
 public partial class Piece : Node2D
 {
-	public double AnimTimer = 0;
-	public bool fakePiece = false;
-	private bool updateColor = false;
-	private static readonly Random Rnd = new Random();
-	public PieceType Type;
+	private static readonly Random Rnd = new();
+	private bool _updateColor;
+
 	public const int Size = 16;
-	public AnimationPlayer _animationPlayer;
-	public Sprite2D _sprite;
+
+	public bool IsFakePiece = false;
+	public PieceType Type;
+	public AnimationPlayer AnimationPlayer;
+	public Sprite2D Sprite;
+
 	public override void _Ready()
 	{
-		_animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
-		_sprite = GetNode<Sprite2D>("Sprite");
-		_animationPlayer.CurrentAnimation = "idle";
+		AnimationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
+		Sprite = GetNode<Sprite2D>("Sprite");
+		AnimationPlayer.CurrentAnimation = "idle";
 		SetColor();
 	}
 
@@ -35,20 +37,20 @@ public partial class Piece : Node2D
 	{
 		switch (Type)
 		{
-			case PieceType.BLUE:
-				_sprite.Frame = 1;
+			case PieceType.Blue:
+				Sprite.Frame = 1;
 				break;
-			case PieceType.RED:
-				_sprite.Frame = 2;
+			case PieceType.Red:
+				Sprite.Frame = 2;
 				break;
-			case PieceType.YELLOW:
-				_sprite.Frame = 3;
+			case PieceType.Yellow:
+				Sprite.Frame = 3;
 				break;
-			case PieceType.GREEN:
-				_sprite.Frame = 4;
+			case PieceType.Green:
+				Sprite.Frame = 4;
 				break;
-			case PieceType.VIOLET:
-				_sprite.Frame = 0;
+			case PieceType.Violet:
+				Sprite.Frame = 0;
 				break;
 		}
 	}
@@ -63,26 +65,26 @@ public partial class Piece : Node2D
 
 	public void AnimateLeft()
 	{
-		 _animationPlayer.Play("left", customSpeed: 2);
-		 updateColor = true;			 
+		 AnimationPlayer.Play("left", customSpeed: 2);
+		 _updateColor = true;			 
 	}
 	
 	public void AnimateRight()
 	{
-		_animationPlayer.Play("right", customSpeed: 2);
-		updateColor = true;	
+		AnimationPlayer.Play("right", customSpeed: 2);
+		_updateColor = true;	
 	}
 	
 	public void AnimateDown()
 	{
-		_animationPlayer.Play("down", customSpeed: 2);
-		updateColor = true;	
+		AnimationPlayer.Play("down", customSpeed: 2);
+		_updateColor = true;	
 	}
 
 	public void AnimateUp()
 	{
-		_animationPlayer.Play("up", customSpeed: 2);
-		updateColor = true;	
+		AnimationPlayer.Play("up", customSpeed: 2);
+		_updateColor = true;	
 	}
 	
 	public override void _Process(double delta)
@@ -92,15 +94,15 @@ public partial class Piece : Node2D
 
 	private void CleanupAfterColOrRowShift()
 	{
-		if (updateColor && !_animationPlayer.IsPlaying() && _animationPlayer.CurrentAnimation != "idle")		
+		if (_updateColor && !AnimationPlayer.IsPlaying() && AnimationPlayer.CurrentAnimation != "idle")		
 		{
 			SetColor();
-			_animationPlayer.Stop();
-			_animationPlayer.Play("idle");
-			updateColor = false;
-			if (fakePiece)
+			AnimationPlayer.Stop();
+			AnimationPlayer.Play("idle");
+			_updateColor = false;
+			if (IsFakePiece)
 			{
-				_sprite.Visible = false;
+				Sprite.Visible = false;
 			}
 		}
 	}

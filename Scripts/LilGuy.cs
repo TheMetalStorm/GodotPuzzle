@@ -6,22 +6,22 @@ namespace GodotTest.Scripts;
 
 enum LilGuyState
 {
-	MOVING, SHIFTING,
+	Moving, Shifting, 
 }
 public partial class LilGuy : Path2D
 {
 	private const int ZIndexLine = 3;
 
 	private CustomSignals _customSignals;
-	private bool _gotPoints = false;
+	private bool _gotPoints;
 	private PathFollow2D _traveller;
 	private AnimationPlayer _animationPlayer;
 	private Sprite2D _sprite2D;
-	private LilGuyState _state = LilGuyState.MOVING;
+	private LilGuyState _state = LilGuyState.Moving;
+	
 	[Export]
 	private float _speed = 20;
 	
-	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		ZIndex = ZIndexLine;
@@ -36,11 +36,10 @@ public partial class LilGuy : Path2D
 
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
 		if(!_gotPoints) return;
-		if (_state == LilGuyState.MOVING)
+		if (_state == LilGuyState.Moving)
 		{
 			if (Input.IsActionJustPressed("ui_accept"))
 			{
@@ -61,7 +60,7 @@ public partial class LilGuy : Path2D
 
 	private void OnShiftAllowed()
 	{
-		_state = LilGuyState.SHIFTING;
+		_state = LilGuyState.Shifting;
 		_animationPlayer.Play("push");
 	}
 	
@@ -84,7 +83,7 @@ public partial class LilGuy : Path2D
 	
 	private void OnShiftAnimEnd()
 	{
-		_state = LilGuyState.MOVING;
+		_state = LilGuyState.Moving;
 		_animationPlayer.Stop();
 		_animationPlayer.Play("walk");
 		

@@ -9,7 +9,7 @@ namespace GodotTest.Scripts;
 
 enum BoardState
 {
-	SHIFTING, PLAYERCONTROL
+	Shifting, PlayerControl
 }
 public partial class Board : TileMap
 {
@@ -21,11 +21,13 @@ public partial class Board : TileMap
 	private Piece _fake;
 	private Piece _fake2;
 	private PackedScene _pieceScene;
-	private BoardState _boardState = BoardState.PLAYERCONTROL;
+	private BoardState _boardState = BoardState.PlayerControl;
+
+	private CustomSignals _customSignals;	
+
 	[Export]
 	private int _boardSize = 6;
 
-	private CustomSignals _customSignals;	
 
 	public override void _Ready()
 	{
@@ -51,7 +53,7 @@ public partial class Board : TileMap
 		var downLeft = upLeft + Vector2.Down * (_boardSize+1) * Piece.Size;
 		var downRight = upRight + Vector2.Down * (_boardSize+1) * Piece.Size;
 
-		Array<Vector2> path = new Array<Vector2>
+		var path = new Array<Vector2>
 		{
 			upLeft,
 			upRight,
@@ -68,22 +70,22 @@ public partial class Board : TileMap
 	{
 		_fake = _pieceScene.Instantiate<Piece>();
 		_fake.GetNode<Sprite2D>("Sprite").ZIndex = ZIndexPiece;
-		_fake.fakePiece = true;
+		_fake.IsFakePiece = true;
 		AddChild(_fake);
-		_fake._sprite.Visible = false;
-		
+		_fake.Sprite.Visible = false;
+
 		_fake2 = _pieceScene.Instantiate<Piece>();
 		_fake2.GetNode<Sprite2D>("Sprite").ZIndex = ZIndexPiece;
-		_fake2.fakePiece = true;
+		_fake2.IsFakePiece = true;
 		AddChild(_fake2);
-		_fake2._sprite.Visible = false;
+		_fake2.Sprite.Visible = false;
 	}
 
 	private void PopulatePieces()
 	{
-		for (int y = 0; y < _boardSize; y++)
+		for (var y = 0; y < _boardSize; y++)
 		{
-			for (int x = 0; x < _boardSize ; x++)
+			for (var x = 0; x < _boardSize ; x++)
 			{
 				var piece = _pieceScene.Instantiate<Piece>();
 	
@@ -100,12 +102,11 @@ public partial class Board : TileMap
 
 	private void DrawBoardBg()
 	{
+		var boardBg = new Array<Vector2I>();
 
-		Array<Vector2I> boardBg = new Array<Vector2I>();
-		
-		for (int y = -1; y <= _boardSize; y++)
+		for (var y = -1; y <= _boardSize; y++)
 		{
-			for (int x = -1; x <= _boardSize; x++)
+			for (var x = -1; x <= _boardSize; x++)
 			{
 				boardBg.Add(new Vector2I(x, y));		
 				EraseCell(LayerIndexBorder,new Vector2I(x, y));
@@ -118,8 +119,8 @@ public partial class Board : TileMap
 	
 	private void ShiftRowLeft(int row)
 	{
-		PieceType first = _boardPieces[0, row].Type;
-		PieceType second = _boardPieces[1, row].Type;
+		var first = _boardPieces[0, row].Type;
+		var second = _boardPieces[1, row].Type;
 
 		for (int x = 0; x < _boardSize-1; x++)
 		{
@@ -141,10 +142,10 @@ public partial class Board : TileMap
 	
 	private void ShiftRowRight(int row)
 	{
-		PieceType last = _boardPieces[_boardSize - 1, row].Type;
-		PieceType beforeLast = _boardPieces[_boardSize - 2, row].Type;
+		var last = _boardPieces[_boardSize - 1, row].Type;
+		var beforeLast = _boardPieces[_boardSize - 2, row].Type;
 
-		for (int x = _boardSize - 1; x > 0; x--)
+		for (var x = _boardSize - 1; x > 0; x--)
 		{
 
 			if (x == _boardSize - 1)
@@ -165,9 +166,9 @@ public partial class Board : TileMap
 
 	private void ShiftColumnUp(int column)
 	{
-		PieceType highest = _boardPieces[column, 0].Type;
+		var highest = _boardPieces[column, 0].Type;
 		
-		for (int y = 0; y < _boardSize - 1; y++)
+		for (var y = 0; y < _boardSize - 1; y++)
 		{
 			if (y == 0)
 			{
@@ -186,10 +187,10 @@ public partial class Board : TileMap
 
 	private void ShiftColumnDown(int column)
 	{
-		PieceType lowest = _boardPieces[column, _boardSize-1].Type;
-		PieceType secondLowest = _boardPieces[column, _boardSize-2].Type;//only needed because anim overshoots 
+		var lowest = _boardPieces[column, _boardSize-1].Type;
+		var secondLowest = _boardPieces[column, _boardSize-2].Type;//only needed because anim overshoots 
 
-		for (int y = _boardSize-1; y > 0 ; y--)
+		for (var y = _boardSize-1; y > 0 ; y--)
 		{
 			if (y == _boardSize-1)
 			{
@@ -205,9 +206,9 @@ public partial class Board : TileMap
 		_boardPieces[column, 0].AnimateDown();
 	}
 	
-	private void PrepareFakePieceForAnimation(Piece fakePiece, PieceType newType, Vector2 newPos)
+	private static void PrepareFakePieceForAnimation(Piece fakePiece, PieceType newType, Vector2 newPos)
 	{
-		fakePiece._sprite.Visible = true;
+		fakePiece.Sprite.Visible = true;
 		fakePiece.UpdateType(newType);
 		fakePiece.Position = newPos;
 	}
@@ -217,9 +218,9 @@ public partial class Board : TileMap
 		var lilGuyMapPos = LocalToMap(lilGuyPos);
 		if (!IsValidMovePos(lilGuyMapPos)) return;
 		_customSignals.EmitSignal(nameof(CustomSignals.ShiftAllowed));
-		if (_boardState == BoardState.PLAYERCONTROL)
+		if (_boardState == BoardState.PlayerControl)
 		{
-			_boardState = BoardState.SHIFTING;
+			_boardState = BoardState.Shifting;
 
 			if (lilGuyMapPos.X == -1)
 			{
@@ -250,17 +251,17 @@ public partial class Board : TileMap
 
 	public override void _Process(double delta)
 	{
-		if (_boardState == BoardState.SHIFTING)
+		if (_boardState == BoardState.Shifting)
 		{
 			if (AllPiecesIdle())
 			{
-				_boardState = BoardState.PLAYERCONTROL;
+				_boardState = BoardState.PlayerControl;
 				_customSignals.EmitSignal(nameof(CustomSignals.ShiftAnimEnded));
 			}
 		}
 	}
 	private bool AllPiecesIdle()
 	{
-		return _boardPieces.Cast<Piece>().All(piece => piece._animationPlayer.CurrentAnimation == "idle");
+		return _boardPieces.Cast<Piece>().All(piece => piece.AnimationPlayer.CurrentAnimation == "idle");
 	}
 }
