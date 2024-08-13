@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Godot;
 using Godot.Collections;
+using Array = System.Array;
 
 namespace GodotTest.Scripts;
 
@@ -11,12 +13,37 @@ enum BoardState
 {
 	Shifting, PlayerControl
 }
+
+struct FoundLine
+{
+	private readonly bool _isHorizontal;
+	private readonly int _startX;
+	private readonly int _startY;
+	private readonly int _length;
+	public FoundLine(bool isHorizontal, int startX, int startY, int length)
+	{
+		_isHorizontal = isHorizontal;
+		_length = length;
+		_startY = startY;
+		_startX = startX;
+	}
+	
+	public override string ToString()
+	{
+		var hOrV = _isHorizontal ? "Horizontal" : "Vertical";
+		return $"FoundLine: {hOrV}, from X: {_startX}, Y: {_startY}, Length {_length} \r\n";
+
+	}
+}
+
 public partial class Board : TileMap
 {
 	private const int LayerIndexBorder = 0;
 	private const int ZIndexPiece = 0;
 	private const int ZIndexBorder = 1;
+	private const int MinPiecesForLine = 3;
 
+	
 	private Piece[,] _boardPieces;
 	private Piece _fake;
 	private Piece _fake2;
@@ -27,6 +54,7 @@ public partial class Board : TileMap
 
 	[Export]
 	private int _boardSize = 6;
+
 
 
 	public override void _Ready()
@@ -256,10 +284,85 @@ public partial class Board : TileMap
 			if (AllPiecesIdle())
 			{
 				_boardState = BoardState.PlayerControl;
+
+				List<FoundLine> foundLinesToClear = CheckForLinesToClear();
 				_customSignals.EmitSignal(nameof(CustomSignals.ShiftAnimEnded));
+
 			}
 		}
 	}
+
+	private List<FoundLine> CheckForLinesToClear()
+	{
+
+		var found = new List<FoundLine>(); 
+		
+		//Check Horizontal
+		for (var y = 0; y < _boardSize; y++)
+		{
+			PieceType lastType = _boardPieces[0, y].Type;
+			int length = 1;
+			int startIndex = 0;
+			
+			for (var x = 1; x < _boardSize; x++)
+			{
+				//Found matching Piece
+				if (lastType == _boardPieces[x, y].Type)
+				{
+					length++;
+					if (x != _boardSize - 1) continue;
+					if (length < MinPiecesForLine) continue;
+					found.Add(new FoundLine(true, startIndex, y,length ));
+					break;
+				}
+
+				//We got a Line, add it and check next row
+				if (length >= MinPiecesForLine)
+				{
+					found.Add(new FoundLine(true, startIndex, y,length ));
+					break;
+				}
+				//else keep searching with current PieceType
+				startIndex = x;
+				lastType = _boardPieces[x, y].Type;
+				length = 1;
+			}
+		}
+		
+		//Check Vertical
+		for (int x = 0; x < _boardSize; x++)
+		{
+			PieceType lastType = _boardPieces[x, 0].Type;
+			int length = 1;
+			int startIndex = 0;
+
+			for (int y = 1; y < _boardSize; y++)
+			{
+				if (lastType == _boardPieces[x, y].Type)
+				{
+					length++;
+					if(y != _boardSize - 1) continue;
+					if (length < MinPiecesForLine) continue;
+					found.Add(new FoundLine(false, x, startIndex,length ));
+					break;
+				}
+
+				if (length >= MinPiecesForLine)
+				{
+					found.Add(new FoundLine(false, x, startIndex,length ));
+					break;
+				}
+
+				startIndex = y;
+				lastType = _boardPieces[x, y].Type;
+				length = 1;
+			}
+		}
+		
+		
+		return found;
+	}
+
 	private bool AllPiecesIdle()
 	{
 		return _boardPieces.Cast<Piece>().All(piece => piece.AnimationPlayer.CurrentAnimation == "idle");
